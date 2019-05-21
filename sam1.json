@@ -1,0 +1,239 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": "AWS::Serverless-2016-10-31",
+  "Description": "Exported by .arc 5.8.4 on 2019-05-21T19:14:51.475Z",
+  "Resources": {
+    "Testcfapp": {
+      "Type": "AWS::Serverless::Api",
+      "Properties": {
+        "Name": "Testcfapp",
+        "StageName": "production",
+        "DefinitionBody": {
+          "openapi": "3.0.1",
+          "info": {
+            "title": "testcfapp"
+          },
+          "paths": {
+            "/": {
+              "get": {
+                "responses": {
+                  "200": {
+                    "description": "200 response"
+                  }
+                },
+                "x-amazon-apigateway-integration": {
+                  "uri": {
+                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetIndex.Arn}/invocations"
+                  },
+                  "responses": {
+                    "default": {
+                      "statusCode": "200",
+                      "contentHandling": "CONVERT_TO_TEXT",
+                      "responseTemplates": {
+                        "text/html": "## Version 2.0.2\n##\n## Set up response\n#set($response = $util.parseJson($util.base64Decode($input.json('$'))))\n##\n## Set up body\n#if($response.get('body') != \"\")\n$response.get('body')##\n#end\n##\n## Show any error\n#if($response.get('errorMessage') != \"\")\n  $response.get('errorMessage')\n#end\n##\n## Override status\n#if($response.get(\"status\") != \"\")\n  #set($context.responseOverride.status = $response.get(\"status\"))\n#elseif($response.get(\"code\") != \"\")\n  #set($context.responseOverride.status = $response.get(\"code\"))\n#elseif($response.get(\"statusCode\") != \"\")\n  #set($context.responseOverride.status = $response.get(\"statusCode\"))\n#end\n##\n## Override Location\n#if($response.get(\"location\") != \"\")\n  #set($context.responseOverride.header.Location = $response.get(\"location\"))\n#end\n##\n## Override Content-Type\n##   Default: append charset=utf-8\n#if($response.get(\"type\") != \"\")\n  #set($context.responseOverride.header.Content-Type = $response.get(\"type\"))\n#else\n  #set($context.responseOverride.header.Content-Type = \"application/json; charset=utf-8;\")\n#end\n##\n## Override Set-Cookie\n#if($response.get(\"cookie\") != \"\")\n  #set($context.responseOverride.header.Set-Cookie = $response.get(\"cookie\"))\n#end\n##\n## CORS support\n#if($response.get(\"cors\") != \"\")\n  #set($context.responseOverride.header.Access-Control-Allow-Origin = \"*\")\n#end\n##\n## layer in Cache-Control\n## default: do not allow caching of HTML or JSON\n#if($response.get(\"cacheControl\") != \"\")\n  #set($context.responseOverride.header.Cache-Control = $response.get(\"cacheControl\"))\n#elseif($context.responseOverride.header.Content-Type.contains(\"text/html\") ||\n        $context.responseOverride.header.Content-Type.contains(\"application/json\"))\n  #set($context.responseOverride.header.Cache-Control = \"no-cache, no-store, must-revalidate, max-age=0, s-maxage=0\")\n#else\n  #set($context.responseOverride.header.Cache-Control = \"max-age=86400\")\n#end\n##\n## Go!\n#set($headers = $response.get(\"headers\"))\n#foreach($key in $headers.keySet())\n  #set($context.responseOverride.header[$key] = $headers[$key])\n#end\n"
+                      }
+                    }
+                  },
+                  "passthroughBehavior": "when_no_match",
+                  "httpMethod": "POST",
+                  "requestTemplates": {
+                    "application/json": "## Version 2.0.2\n##\n#set($inputJson = $util.base64Decode($input.json('$')))\n#if($inputJson.isEmpty())\n  #set($body = \"{}\")\n#else\n  #set($body = $inputJson)\n#end\n##\n{\n  \"body\": $body,\n  \"path\": \"$context.resourcePath\",\n  \"headers\": {\n    #foreach($header in $input.params().header.keySet())\n    \"$header\": \"$util.escapeJavaScript($input.params().header.get($header))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"method\": \"$context.httpMethod\",\n  \"httpMethod\": \"$context.httpMethod\",\n  \"params\": {\n    #foreach($param in $input.params().path.keySet())\n    \"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"query\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"queryStringParameters\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  }\n}\n",
+                    "application/octet-stream": "## Version 2.0.2\n##\n#set($inputJson = $util.base64Decode($input.json('$')))\n#if($inputJson.isEmpty())\n  #set($body = \"{}\")\n#else\n  #set($body = \"{ \"\"base64\"\": $input.json('$') }\")\n#end\n##\n{\n  \"body\": $body,\n  \"path\": \"$context.resourcePath\",\n  \"headers\": {\n    #foreach($header in $input.params().header.keySet())\n    \"$header\": \"$util.escapeJavaScript($input.params().header.get($header))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"method\": \"$context.httpMethod\",\n  \"httpMethod\": \"$context.httpMethod\",\n  \"params\": {\n    #foreach($param in $input.params().path.keySet())\n    \"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"query\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"queryStringParameters\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  }\n}\n",
+                    "application/vnd.api+json": "## Version 2.0.2\n##\n#set($inputJson = $util.base64Decode($input.json('$')))\n#if($inputJson.isEmpty())\n  #set($body = \"{}\")\n#else\n  #set($body = $inputJson)\n#end\n##\n{\n  \"body\": $body,\n  \"path\": \"$context.resourcePath\",\n  \"headers\": {\n    #foreach($header in $input.params().header.keySet())\n    \"$header\": \"$util.escapeJavaScript($input.params().header.get($header))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"method\": \"$context.httpMethod\",\n  \"httpMethod\": \"$context.httpMethod\",\n  \"params\": {\n    #foreach($param in $input.params().path.keySet())\n    \"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"query\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"queryStringParameters\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  }\n}\n",
+                    "application/x-www-form-urlencoded": "## Version 2.0.1\n\n## many eyeballs were in this code\n## convert HTML POST data or HTTP GET query string to JSON\n## most recent edit adds proper escaping of values\n#*Ref:\n\n  https://gist.github.com/ryanray/668022ad2432e38493df\n  https://github.com/mweagle/Sparta/blob/master/resources/provision/apigateway/inputmapping_formencoded.vtl\n  https://forums.aws.amazon.com/thread.jspa?threadID=220274&tstart=0\n  http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-mapping-template-reference.html\n  https://forums.aws.amazon.com/message.jspa?messageID=675886\n\n*#\n\n## get the raw post data from the AWS built-in variable and give it a nicer name\n#if ($context.httpMethod == \"POST\")\n  #set($rawAPIData = $util.base64Decode($input.path('$')))\n#elseif ($context.httpMethod == \"GET\")\n  #set($rawAPIData = $input.params().querystring)\n  #set($rawAPIData = $rawAPIData.toString())\n  #set($rawAPIDataLength = $rawAPIData.length() - 1)\n  #set($rawAPIData = $rawAPIData.substring(1, $rawAPIDataLength))\n  #set($rawAPIData = $rawAPIData.replace(\", \", \"&\"))\n#else\n  #set($rawAPIData = \"\")\n#end\n\n## first we get the number of \"&\" in the string, this tells us if there is more than one key value pair\n#set($countAmpersands = $rawAPIData.length() - $rawAPIData.replace(\"&\", \"\").length())\n\n## if there are no \"&\" at all then we have only one key value pair.\n## we append an ampersand to the string so that we can tokenise it the same way as multiple kv pairs.\n## the \"empty\" kv pair to the right of the ampersand will be ignored anyway.\n#if ($countAmpersands == 0)\n  #set($rawPostData = $rawAPIData + \"&\")\n#end\n\n## now we tokenise using the ampersand(s)\n#set($tokenisedAmpersand = $rawAPIData.split(\"&\"))\n\n## we set up a variable to hold the valid key value pairs\n#set($tokenisedEquals = [])\n\n## now we set up a loop to find the valid key value pairs, which must contain only one \"=\"\n#foreach( $kvPair in $tokenisedAmpersand )\n  #set($countEquals = $kvPair.length() - $kvPair.replace(\"=\", \"\").length())\n  #if ($countEquals == 1)\n    #set($kvTokenised = $kvPair.split(\"=\"))\n    #if ($kvTokenised[0].length() > 0)\n      ## we found a valid key value pair. add it to the list.\n      #set($devNull = $tokenisedEquals.add($kvPair))\n    #end\n  #end\n#end\n\n{\n  \"method\": \"$context.httpMethod\",\n  \"httpMethod\": \"$context.httpMethod\",\n  \"path\": \"$context.resourcePath\",\n  \"body\": {\n    #foreach( $kvPair in $tokenisedEquals )\n      ## finally we output the JSON for this pair and append a comma if this isn't the last pair\n      #set($kvTokenised = $kvPair.split(\"=\"))\n      #if($kvTokenised.size() == 2)\n        #set($kvValue = $util.escapeJavaScript($util.urlDecode($kvTokenised[1])).replaceAll(\"\\\\'\", \"'\"))\n      #else\n        #set($kvValue = \"\")\n      #end\n      \"$util.urlDecode($kvTokenised[0])\": \"$kvValue\"#if( $foreach.hasNext ),#end\n    #end\n  },\n  \"headers\": {\n    #foreach($param in $input.params().header.keySet())\n    \"$param\": \"$util.escapeJavaScript($input.params().header.get($param))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"query\": {\n    #foreach($param in $input.params().querystring.keySet())\n    \"$param\": \"$util.escapeJavaScript($input.params().querystring.get($param))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"queryStringParameters\": {\n    #foreach($param in $input.params().querystring.keySet())\n    \"$param\": \"$util.escapeJavaScript($input.params().querystring.get($param))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"params\": {\n    #foreach($param in $input.params().path.keySet())\n    \"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n    #end\n  }\n}\n",
+                    "application/xml": "## Version 2.0.2\n##\n#set($inputJson = $util.base64Decode($input.json('$')))\n#if($inputJson.isEmpty())\n  #set($body = \"{}\")\n#else\n  #set($body = $inputJson)\n#end\n##\n{\n  \"body\": $body,\n  \"path\": \"$context.resourcePath\",\n  \"headers\": {\n    #foreach($header in $input.params().header.keySet())\n    \"$header\": \"$util.escapeJavaScript($input.params().header.get($header))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"method\": \"$context.httpMethod\",\n  \"httpMethod\": \"$context.httpMethod\",\n  \"params\": {\n    #foreach($param in $input.params().path.keySet())\n    \"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"query\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"queryStringParameters\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  }\n}\n",
+                    "multipart/form-data": "## Version 2.0.2\n##\n#set($inputJson = $util.base64Decode($input.json('$')))\n#if($inputJson.isEmpty())\n  #set($body = \"{}\")\n#else\n  #set($body = \"{ \"\"base64\"\": $input.json('$') }\")\n#end\n##\n{\n  \"body\": $body,\n  \"path\": \"$context.resourcePath\",\n  \"headers\": {\n    #foreach($header in $input.params().header.keySet())\n    \"$header\": \"$util.escapeJavaScript($input.params().header.get($header))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"method\": \"$context.httpMethod\",\n  \"httpMethod\": \"$context.httpMethod\",\n  \"params\": {\n    #foreach($param in $input.params().path.keySet())\n    \"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"query\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"queryStringParameters\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  }\n}\n",
+                    "text/css": "## Version 2.0.2\n##\n#set($inputJson = $util.base64Decode($input.json('$')))\n#if($inputJson.isEmpty())\n  #set($body = \"{}\")\n#else\n  #set($body = $inputJson)\n#end\n##\n{\n  \"body\": $body,\n  \"path\": \"$context.resourcePath\",\n  \"headers\": {\n    #foreach($header in $input.params().header.keySet())\n    \"$header\": \"$util.escapeJavaScript($input.params().header.get($header))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"method\": \"$context.httpMethod\",\n  \"httpMethod\": \"$context.httpMethod\",\n  \"params\": {\n    #foreach($param in $input.params().path.keySet())\n    \"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"query\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"queryStringParameters\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  }\n}\n",
+                    "text/html": "## Version 2.0.2\n##\n#set($inputJson = $util.base64Decode($input.json('$')))\n#if($inputJson.isEmpty())\n  #set($body = \"{}\")\n#else\n  #set($body = $inputJson)\n#end\n##\n{\n  \"body\": $body,\n  \"path\": \"$context.resourcePath\",\n  \"headers\": {\n    #foreach($header in $input.params().header.keySet())\n    \"$header\": \"$util.escapeJavaScript($input.params().header.get($header))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"method\": \"$context.httpMethod\",\n  \"httpMethod\": \"$context.httpMethod\",\n  \"params\": {\n    #foreach($param in $input.params().path.keySet())\n    \"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"query\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"queryStringParameters\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  }\n}\n",
+                    "text/javascript": "## Version 2.0.2\n##\n#set($inputJson = $util.base64Decode($input.json('$')))\n#if($inputJson.isEmpty())\n  #set($body = \"{}\")\n#else\n  #set($body = $inputJson)\n#end\n##\n{\n  \"body\": $body,\n  \"path\": \"$context.resourcePath\",\n  \"headers\": {\n    #foreach($header in $input.params().header.keySet())\n    \"$header\": \"$util.escapeJavaScript($input.params().header.get($header))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"method\": \"$context.httpMethod\",\n  \"httpMethod\": \"$context.httpMethod\",\n  \"params\": {\n    #foreach($param in $input.params().path.keySet())\n    \"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"query\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"queryStringParameters\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  }\n}\n",
+                    "text/plain": "## Version 2.0.2\n##\n#set($inputJson = $util.base64Decode($input.json('$')))\n#if($inputJson.isEmpty())\n  #set($body = \"{}\")\n#else\n  #set($body = $inputJson)\n#end\n##\n{\n  \"body\": $body,\n  \"path\": \"$context.resourcePath\",\n  \"headers\": {\n    #foreach($header in $input.params().header.keySet())\n    \"$header\": \"$util.escapeJavaScript($input.params().header.get($header))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"method\": \"$context.httpMethod\",\n  \"httpMethod\": \"$context.httpMethod\",\n  \"params\": {\n    #foreach($param in $input.params().path.keySet())\n    \"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"query\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  },\n  \"queryStringParameters\": {\n    #foreach($queryParam in $input.params().querystring.keySet())\n    \"$queryParam\": \"$util.escapeJavaScript($input.params().querystring.get($queryParam))\" #if($foreach.hasNext),#end\n    #end\n  }\n}\n"
+                  },
+                  "contentHandling": "CONVERT_TO_TEXT",
+                  "type": "aws"
+                }
+              }
+            },
+            "/{proxy+}": {
+              "x-amazon-apigateway-any-method": {
+                "parameters": [
+                  {
+                    "name": "proxy",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "x-amazon-apigateway-integration": {
+                  "uri": {
+                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetIndex.Arn}/invocations"
+                  },
+                  "responses": {
+                    "default": {
+                      "statusCode": "200"
+                    }
+                  },
+                  "passthroughBehavior": "when_no_match",
+                  "httpMethod": "POST",
+                  "cacheNamespace": "xlr8r",
+                  "cacheKeyParameters": [
+                    "method.request.path.proxy"
+                  ],
+                  "contentHandling": "CONVERT_TO_TEXT",
+                  "type": "aws_proxy"
+                }
+              }
+            },
+            "/_static/{proxy+}": {
+              "x-amazon-apigateway-any-method": {
+                "parameters": [
+                  {
+                    "name": "proxy",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "x-amazon-apigateway-integration": {
+                  "uri": {
+                    "Fn::Sub": [
+                      "http://${bukkit}.s3.${AWS::Region}.amazonaws.com/{proxy}",
+                      {
+                        "bukkit": {
+                          "Ref": "StaticBucket"
+                        }
+                      }
+                    ]
+                  },
+                  "responses": {
+                    "default": {
+                      "statusCode": "200"
+                    }
+                  },
+                  "requestParameters": {
+                    "integration.request.path.proxy": "method.request.path.proxy"
+                  },
+                  "passthroughBehavior": "when_no_match",
+                  "httpMethod": "ANY",
+                  "cacheNamespace": "xlr8r2",
+                  "cacheKeyParameters": [
+                    "method.request.path.proxy"
+                  ],
+                  "type": "http_proxy"
+                }
+              }
+            }
+          }
+        },
+        "EndpointConfiguration": "REGIONAL",
+        "BinaryMediaTypes": [
+          "*~1*"
+        ],
+        "MinimumCompressionSize": 0
+      }
+    },
+    "GetIndex": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "index.handler",
+        "CodeUri": "./src/http/get-index",
+        "Runtime": "nodejs10.x",
+        "MemorySize": 1152,
+        "Timeout": 5,
+        "Environment": {
+          "Variables": {
+            "ARC_CLOUDFORMATION": "Testcfapp",
+            "ARC_APP_NAME": "testcfapp",
+            "NODE_ENV": "production",
+            "SESSION_TABLE_NAME": "jwe",
+            "ARC_STATIC_BUCKET": {
+              "Ref": "StaticBucket"
+            }
+          }
+        },
+        "Policies": [
+          {
+            "S3ReadPolicy": {
+              "BucketName": {
+                "Ref": "StaticBucket"
+              }
+            }
+          }
+        ],
+        "Events": {
+          "GetIndexEvent": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/",
+              "Method": "GET",
+              "RestApiId": {
+                "Ref": "Testcfapp"
+              }
+            }
+          }
+        }
+      }
+    },
+    "InvokeProxyPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "GetIndex"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Sub": [
+            "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${restApiId}/*/*",
+            {
+              "restApiId": {
+                "Ref": "Testcfapp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "StaticBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "PublicRead",
+        "WebsiteConfiguration": {
+          "IndexDocument": "index.html",
+          "ErrorDocument": "404.html"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ProductionURL": {
+      "Description": "Deployment URL",
+      "Value": {
+        "Fn::Sub": [
+          "https://${restApiId}.execute-api.${AWS::Region}.amazonaws.com/production/",
+          {
+            "restApiId": {
+              "Ref": "Testcfapp"
+            }
+          }
+        ]
+      }
+    },
+    "BucketURL": {
+      "Description": "Bucket URL",
+      "Value": {
+        "Fn::Sub": [
+          "http://${bukkit}.s3.${AWS::Region}.amazonaws.com",
+          {
+            "bukkit": {
+              "Ref": "StaticBucket"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
